@@ -9,8 +9,19 @@ export function Home() {
   const { recentIds } = useRecentScenes()
 
   useEffect(() => {
+    const cdn = import.meta.env.VITE_MODEL_CDN_BASE as string | undefined
     preloadAllModels((url) => {
-      useGLTF.preload(resolveModelUrl(url))
+      const resolved = resolveModelUrl(url)
+      if (
+        import.meta.env.PROD &&
+        resolved.startsWith('/models/') &&
+        !cdn
+      ) {
+        return
+      }
+      void Promise.resolve(useGLTF.preload(resolved)).catch(() => {
+        /* missing assets on static hosts — SceneView uses error boundary */
+      })
     })
   }, [])
 

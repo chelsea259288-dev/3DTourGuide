@@ -213,11 +213,16 @@ export function EcefWalkNavigation({
   useEffect(() => {
     if (!active) return
     const dom = gl.domElement
+    if (!dom) return
 
     const onPointerDown = (e: PointerEvent) => {
       isDragging.current = true
       prevMouse.current = { x: e.clientX, y: e.clientY }
-      dom.setPointerCapture(e.pointerId)
+      try {
+        dom.setPointerCapture(e.pointerId)
+      } catch {
+        /* ignore: some browsers / lost-target races throw */
+      }
     }
     const onPointerMove = (e: PointerEvent) => {
       if (!isDragging.current) return
@@ -232,7 +237,13 @@ export function EcefWalkNavigation({
     }
     const onPointerUp = (e: PointerEvent) => {
       isDragging.current = false
-      dom.releasePointerCapture(e.pointerId)
+      try {
+        if (dom.hasPointerCapture(e.pointerId)) {
+          dom.releasePointerCapture(e.pointerId)
+        }
+      } catch {
+        /* ignore: release without capture throws in some browsers */
+      }
     }
 
     dom.addEventListener('pointerdown', onPointerDown)
@@ -240,10 +251,12 @@ export function EcefWalkNavigation({
     dom.addEventListener('pointerup', onPointerUp)
     dom.addEventListener('pointercancel', onPointerUp)
     return () => {
-      dom.removeEventListener('pointerdown', onPointerDown)
-      dom.removeEventListener('pointermove', onPointerMove)
-      dom.removeEventListener('pointerup', onPointerUp)
-      dom.removeEventListener('pointercancel', onPointerUp)
+      try {
+        dom.removeEventListener('pointerdown', onPointerDown)
+        dom.removeEventListener('pointermove', onPointerMove)
+        dom.removeEventListener('pointerup', onPointerUp)
+        dom.removeEventListener('pointercancel', onPointerUp)
+      } catch { /* Canvas already disposed */ }
     }
   }, [active, gl.domElement])
 

@@ -1,0 +1,263 @@
+diff --git a/node_modules/3d-tiles-renderer/build/B3DMLoaderBase-D7PNZ5_b.js b/node_modules/3d-tiles-renderer/build/B3DMLoaderBase-D7PNZ5_b.js
+index 8d4f7e0..7dacfe2 100644
+--- a/node_modules/3d-tiles-renderer/build/B3DMLoaderBase-D7PNZ5_b.js
++++ b/node_modules/3d-tiles-renderer/build/B3DMLoaderBase-D7PNZ5_b.js
+@@ -24,11 +24,11 @@ function N(t) {
+   return !!t.traversal;
+ }
+ function P(t) {
+-  const { children: e } = t, s = e.length === 0 || N(e[e.length - 1]), n = !t.internal.hasUnrenderableContent || E(t.internal.loadingState);
++  const { children: e } = t, s = e.length === 0 || N(e[e.length - 1]), n = t.internal && (!t.internal.hasUnrenderableContent || E(t.internal.loadingState));
+   return s && n;
+ }
+ function w(t) {
+-  return t.internal.hasUnrenderableContent || t.parent && t.parent.geometricError < t.geometricError;
++  return !!(t.internal && t.internal.hasUnrenderableContent) || !!(t.parent && t.parent.geometricError < t.geometricError);
+ }
+ function A(t, e) {
+   e.ensureChildrenArePreprocessed(t), t.traversal.lastFrameVisited !== e.frameCount && (t.traversal.lastFrameVisited = e.frameCount, t.traversal.used = !1, t.traversal.inFrustum = !1, t.traversal.isLeaf = !1, t.traversal.visible = !1, t.traversal.active = !1, t.traversal.error = 1 / 0, t.traversal.distanceFromCamera = 1 / 0, t.traversal.allChildrenReady = !1, t.traversal.kicked = !1, t.traversal.allUsedChildrenProcessed = !1, e.calculateTileViewErrorWithPlugin(t, R), t.traversal.inFrustum = R.inView, t.traversal.error = R.error, t.traversal.distanceFromCamera = R.distanceFromCamera);
+@@ -51,7 +51,7 @@ function k(t) {
+   t.traversal.used = !0;
+ }
+ function fe(t, e) {
+-  return !(t.traversal.error <= e.errorTarget && !w(t) || e.maxDepth > 0 && t.internal.depth + 1 >= e.maxDepth || !P(t));
++  return !(t.traversal.error <= e.errorTarget && !w(t) || e.maxDepth > 0 && t.internal && t.internal.depth + 1 >= e.maxDepth || !P(t));
+ }
+ function J(t, e) {
+   const { frameCount: s } = e, { children: n } = t;
+@@ -61,7 +61,7 @@ function J(t, e) {
+   }
+ }
+ function j(t) {
+-  return !w(t) && (!t.internal.hasContent || E(t.internal.loadingState));
++  return !w(t) && (!t.internal || !t.internal.hasContent || E(t.internal.loadingState));
+ }
+ function z(t, e) {
+   if (A(t, e), !t.traversal.inFrustum)
+@@ -111,6 +111,12 @@ function W(t, e) {
+ function K(t, e) {
+   if (!y(t, e.frameCount))
+     return;
++  if (!t.internal) {
++    const r = t.children;
++    for (let o = 0, l = r.length; o < l; o++)
++      K(r[o], e);
++    return;
++  }
+   const s = t.internal.hasContent, n = E(t.internal.loadingState) && s, r = t.children;
+   if (t.traversal.isLeaf) {
+     if (!w(t) && (t.traversal.active = !0, P(t) && (!t.internal.hasContent || !E(t.internal.loadingState))))
+@@ -130,9 +136,15 @@ function K(t, e) {
+ function Y(t, e) {
+   var n;
+   const s = y(t, e.frameCount);
++  if (!t.internal) {
++    const i = t.children;
++    for (let o = 0, l = i.length; o < l; o++)
++      Y(i[o], e);
++    return;
++  }
+   if (s && ((t.internal.hasUnrenderableContent || t.internal.hasRenderableContent && t.refine === "ADD") && (t.traversal.active = !0), (t.traversal.active || t.traversal.kicked) && t.internal.hasContent ? (e.markTileUsed(t), (t.internal.hasUnrenderableContent || t.traversal.allUsedChildrenProcessed) && e.queueTileForDownload(t), t.internal.loadingState !== m && (t.traversal.active = !1)) : t.traversal.active = !1, t.internal.virtualChildCount > 0 && t.internal.hasContent && e.markTileUsed(t), t.traversal.visible = t.internal.hasRenderableContent && t.traversal.active && t.traversal.inFrustum && t.internal.loadingState === m, e.stats.used++, t.traversal.inFrustum && e.stats.inFrustum++), s || N(t) && ((n = t.traversal) != null && n.usedLastFrame)) {
+     let r = !1, a = !1;
+-    s ? (r = t.traversal.active, e.displayActiveTiles ? a = t.traversal.active || t.traversal.visible : a = t.traversal.visible) : A(t, e), t.internal.hasRenderableContent && t.internal.loadingState === m && (t.traversal.wasSetActive !== r && (e.stats.active += r ? 1 : -1, e.invokeOnePlugin((o) => o.setTileActive && o.setTileActive(t, r))), t.traversal.wasSetVisible !== a && (e.stats.visible += a ? 1 : -1, e.invokeOnePlugin((o) => o.setTileVisible && o.setTileVisible(t, a)))), t.traversal.wasSetActive = r, t.traversal.wasSetVisible = a, t.traversal.usedLastFrame = s;
++    s ? (r = t.traversal.active, e.displayActiveTiles ? a = t.traversal.active || t.traversal.visible : a = t.traversal.visible) : A(t, e), t.internal && t.internal.hasRenderableContent && t.internal.loadingState === m && (t.traversal.wasSetActive !== r && (e.stats.active += r ? 1 : -1, e.invokeOnePlugin((o) => o.setTileActive && o.setTileActive(t, r))), t.traversal.wasSetVisible !== a && (e.stats.visible += a ? 1 : -1, e.invokeOnePlugin((o) => o.setTileVisible && o.setTileVisible(t, a)))), t.traversal.wasSetActive = r, t.traversal.wasSetVisible = a, t.traversal.usedLastFrame = s;
+     const i = t.children;
+     for (let o = 0, l = i.length; o < l; o++) {
+       const d = i[o];
+@@ -162,7 +174,7 @@ function $(t) {
+   return e.length === 0 || _(e[e.length - 1]);
+ }
+ function q(t) {
+-  return t.internal.hasUnrenderableContent || t.parent && t.parent.geometricError < t.geometricError;
++  return !!(t.internal && t.internal.hasUnrenderableContent) || !!(t.parent && t.parent.geometricError < t.geometricError);
+ }
+ function Q(t, e) {
+   t.traversal.lastFrameVisited !== e.frameCount && (t.traversal.lastFrameVisited = e.frameCount, t.traversal.used = !1, t.traversal.inFrustum = !1, t.traversal.isLeaf = !1, t.traversal.visible = !1, t.traversal.active = !1, t.traversal.error = 1 / 0, t.traversal.distanceFromCamera = 1 / 0, t.traversal.allChildrenReady = !1, e.calculateTileViewErrorWithPlugin(t, L), t.traversal.inFrustum = L.inView, t.traversal.error = L.error, t.traversal.distanceFromCamera = L.distanceFromCamera);
+@@ -175,7 +187,7 @@ function O(t, e, s = !1) {
+   }
+ }
+ function ee(t, e) {
+-  if (e.ensureChildrenArePreprocessed(t), b(t, e.frameCount) && (t.internal.hasContent && e.queueTileForDownload(t), $(t))) {
++  if (e.ensureChildrenArePreprocessed(t), b(t, e.frameCount) && (t.internal && t.internal.hasContent && e.queueTileForDownload(t), $(t))) {
+     const s = t.children;
+     for (let n = 0, r = s.length; n < r; n++)
+       ee(s[n], e);
+@@ -185,7 +197,7 @@ function B(t, e, s = !1) {
+   t.traversal.used || (s || (t.traversal.used = !0, e.stats.used++), e.markTileUsed(t), t.traversal.inFrustum === !0 && e.stats.inFrustum++);
+ }
+ function pe(t, e) {
+-  return !(t.traversal.error <= e.errorTarget && !q(t) || e.maxDepth > 0 && t.internal.depth + 1 >= e.maxDepth || !$(t));
++  return !(t.traversal.error <= e.errorTarget && !q(t) || e.maxDepth > 0 && t.internal && t.internal.depth + 1 >= e.maxDepth || !$(t));
+ }
+ function te(t, e) {
+   if (e.ensureChildrenArePreprocessed(t), Q(t, e), !t.traversal.inFrustum)
+@@ -206,7 +218,7 @@ function te(t, e) {
+       O(r[a], e, !0);
+     return;
+   }
+-  if (B(t, e), t.refine === "REPLACE" && (s && t.internal.depth !== 0 || X))
++  if (B(t, e), t.refine === "REPLACE" && (s && t.internal && t.internal.depth !== 0 || X))
+     for (let a = 0, i = r.length; a < i; a++)
+       O(r[a], e);
+ }
+@@ -228,7 +240,7 @@ function se(t, e) {
+       const l = n[i];
+       if (se(l, e), b(l, s)) {
+         const d = !q(l);
+-        let h = !l.internal.hasContent || l.internal.hasRenderableContent && Z(l.internal.loadingState) || l.internal.hasUnrenderableContent && l.internal.loadingState === S;
++        let h = !l.internal || !l.internal.hasContent || l.internal.hasRenderableContent && Z(l.internal.loadingState) || l.internal.hasUnrenderableContent && l.internal.loadingState === S;
+         h = d && h || l.traversal.allChildrenReady, a = a && h;
+       }
+     }
+@@ -239,6 +251,12 @@ function re(t, e) {
+   const s = e.stats;
+   if (!b(t, e.frameCount))
+     return;
++  if (!t.internal) {
++    const n = t.children;
++    for (let h = 0, v = n.length; h < v; h++)
++      re(n[h], e);
++    return;
++  }
+   if (t.traversal.isLeaf) {
+     t.internal.loadingState === m ? (t.traversal.inFrustum && (t.traversal.visible = !0, s.visible++), t.traversal.active = !0, s.active++) : t.internal.hasContent && e.queueTileForDownload(t);
+     return;
+@@ -255,9 +273,15 @@ function re(t, e) {
+ }
+ function ne(t, e) {
+   const s = b(t, e.frameCount);
++  if (!t.internal) {
++    const a = t.children;
++    for (let i = 0, o = a.length; i < o; i++)
++      ne(a[i], e);
++    return;
++  }
+   if (s || _(t) && t.traversal.usedLastFrame) {
+     let n = !1, r = !1;
+-    s ? (n = t.traversal.active, e.displayActiveTiles ? r = t.traversal.active || t.traversal.visible : r = t.traversal.visible) : Q(t, e), t.internal.hasRenderableContent && t.internal.loadingState === m && (t.traversal.wasSetActive !== n && e.invokeOnePlugin((i) => i.setTileActive && i.setTileActive(t, n)), t.traversal.wasSetVisible !== r && e.invokeOnePlugin((i) => i.setTileVisible && i.setTileVisible(t, r))), t.traversal.wasSetActive = n, t.traversal.wasSetVisible = r, t.traversal.usedLastFrame = s;
++    s ? (n = t.traversal.active, e.displayActiveTiles ? r = t.traversal.active || t.traversal.visible : r = t.traversal.visible) : Q(t, e), t.internal && t.internal.hasRenderableContent && t.internal.loadingState === m && (t.traversal.wasSetActive !== n && e.invokeOnePlugin((i) => i.setTileActive && i.setTileActive(t, n)), t.traversal.wasSetVisible !== r && e.invokeOnePlugin((i) => i.setTileVisible && i.setTileVisible(t, r))), t.traversal.wasSetActive = n, t.traversal.wasSetVisible = r, t.traversal.usedLastFrame = s;
+     const a = t.children;
+     for (let i = 0, o = a.length; i < o; i++) {
+       const l = a[i];
+@@ -282,13 +306,13 @@ const G = Symbol("PLUGIN_REGISTERED"), C = {
+   distance: 1 / 0
+ }, V = (t, e) => {
+   const s = t.priority || 0, n = e.priority || 0;
+-  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal ? 0 : t.traversal.used !== e.traversal.used ? t.traversal.used ? 1 : -1 : t.traversal.error !== e.traversal.error ? t.traversal.error > e.traversal.error ? 1 : -1 : t.traversal.distanceFromCamera !== e.traversal.distanceFromCamera ? t.traversal.distanceFromCamera > e.traversal.distanceFromCamera ? -1 : 1 : t.internal.depthFromRenderedParent !== e.internal.depthFromRenderedParent ? t.internal.depthFromRenderedParent > e.internal.depthFromRenderedParent ? -1 : 1 : 0;
++  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal || !t.internal || !e.internal ? 0 : t.traversal.used !== e.traversal.used ? t.traversal.used ? 1 : -1 : t.traversal.error !== e.traversal.error ? t.traversal.error > e.traversal.error ? 1 : -1 : t.traversal.distanceFromCamera !== e.traversal.distanceFromCamera ? t.traversal.distanceFromCamera > e.traversal.distanceFromCamera ? -1 : 1 : t.internal.depthFromRenderedParent !== e.internal.depthFromRenderedParent ? t.internal.depthFromRenderedParent > e.internal.depthFromRenderedParent ? -1 : 1 : 0;
+ }, Te = (t, e) => {
+   const s = t.priority || 0, n = e.priority || 0;
+-  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal ? 0 : t.traversal.used !== e.traversal.used ? t.traversal.used ? 1 : -1 : t.traversal.inFrustum !== e.traversal.inFrustum ? t.traversal.inFrustum ? 1 : -1 : t.internal.hasUnrenderableContent !== e.internal.hasUnrenderableContent ? t.internal.hasUnrenderableContent ? 1 : -1 : t.traversal.distanceFromCamera !== e.traversal.distanceFromCamera ? t.traversal.distanceFromCamera > e.traversal.distanceFromCamera ? -1 : 1 : 0;
++  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal || !t.internal || !e.internal ? 0 : t.traversal.used !== e.traversal.used ? t.traversal.used ? 1 : -1 : t.traversal.inFrustum !== e.traversal.inFrustum ? t.traversal.inFrustum ? 1 : -1 : t.internal.hasUnrenderableContent !== e.internal.hasUnrenderableContent ? t.internal.hasUnrenderableContent ? 1 : -1 : t.traversal.distanceFromCamera !== e.traversal.distanceFromCamera ? t.traversal.distanceFromCamera > e.traversal.distanceFromCamera ? -1 : 1 : 0;
+ }, Ce = (t, e) => {
+   const s = t.priority || 0, n = e.priority || 0;
+-  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal ? 0 : t.traversal.lastFrameVisited !== e.traversal.lastFrameVisited ? t.traversal.lastFrameVisited > e.traversal.lastFrameVisited ? -1 : 1 : t.internal.depthFromRenderedParent !== e.internal.depthFromRenderedParent ? t.internal.depthFromRenderedParent > e.internal.depthFromRenderedParent ? 1 : -1 : t.internal.loadingState !== e.internal.loadingState ? t.internal.loadingState > e.internal.loadingState ? -1 : 1 : t.internal.hasUnrenderableContent !== e.internal.hasUnrenderableContent ? t.internal.hasUnrenderableContent ? -1 : 1 : t.traversal.error !== e.traversal.error ? t.traversal.error > e.traversal.error ? -1 : 1 : 0;
++  return s !== n ? s > n ? 1 : -1 : !t.traversal || !e.traversal || !t.internal || !e.internal ? 0 : t.traversal.lastFrameVisited !== e.traversal.lastFrameVisited ? t.traversal.lastFrameVisited > e.traversal.lastFrameVisited ? -1 : 1 : t.internal.depthFromRenderedParent !== e.internal.depthFromRenderedParent ? t.internal.depthFromRenderedParent > e.internal.depthFromRenderedParent ? 1 : -1 : t.internal.loadingState !== e.internal.loadingState ? t.internal.loadingState > e.internal.loadingState ? -1 : 1 : t.internal.hasUnrenderableContent !== e.internal.hasUnrenderableContent ? t.internal.hasUnrenderableContent ? -1 : 1 : t.traversal.error !== e.traversal.error ? t.traversal.error > e.traversal.error ? -1 : 1 : 0;
+ };
+ class Pe {
+   /**
+@@ -480,7 +504,7 @@ class Pe {
+     this.rootLoadingState === S && (this.rootLoadingState = T);
+     const e = this.stats;
+     e.failed !== 0 && (this.traverse((s) => {
+-      s.internal.loadingState === S && (s.internal.loadingState = T);
++      s.internal && s.internal.loadingState === S && (s.internal.loadingState = T);
+     }, null, !1), e.failed = 0);
+   }
+   calculateTileViewErrorWithPlugin(e, s) {
+@@ -616,13 +640,13 @@ class Pe {
+   removeUnusedPendingTiles() {
+     const { lruCache: e, loadingTiles: s } = this, n = [];
+     for (const r of s)
+-      !e.isUsed(r) && r.internal.loadingState === U && n.push(r);
++      !e.isUsed(r) && r.internal && r.internal.loadingState === U && n.push(r);
+     for (let r = 0; r < n.length; r++)
+       e.remove(n[r]);
+   }
+   // Private Functions
+   queueTileForDownload(e) {
+-    e.internal.loadingState !== T || this.lruCache.isFull() || this.queuedTiles.push(e);
++    (!e.internal || e.internal.loadingState !== T) || this.lruCache.isFull() || this.queuedTiles.push(e);
+   }
+   markTileUsed(e) {
+     this.usedSet.add(e), this.lruCache.markUsed(e);
+@@ -688,7 +712,7 @@ class Pe {
+     return console.warn('TilesRenderer: "loadRootTileSet" has been deprecated. Use "loadRootTileset" instead.'), this.loadRootTileSet(...e);
+   }
+   requestTileContents(e) {
+-    if (e.internal.loadingState !== T)
++    if (!e.internal || e.internal.loadingState !== T)
+       return;
+     let s = !1, n = null, r = new URL(e.content.uri, e.internal.basePath + "/").toString();
+     this.invokeAllPlugins((c) => r = c.preprocessURL ? c.preprocessURL(r, e) : r);
+diff --git a/node_modules/3d-tiles-renderer/src/core/renderer/tiles/TilesRendererBase.js b/node_modules/3d-tiles-renderer/src/core/renderer/tiles/TilesRendererBase.js
+index 36f118a..b90577f 100644
+--- a/node_modules/3d-tiles-renderer/src/core/renderer/tiles/TilesRendererBase.js
++++ b/node_modules/3d-tiles-renderer/src/core/renderer/tiles/TilesRendererBase.js
+@@ -129,7 +129,7 @@ const lruPriorityCallback = ( a, b ) => {
+ 		// lower priority value sorts first
+ 		return aPriority > bPriority ? 1 : - 1;
+ 
+-	} else if ( ! a.traversal || ! b.traversal ) {
++	} else if ( ! a.traversal || ! b.traversal || ! a.internal || ! b.internal ) {
+ 
+ 		return 0;
+ 
+@@ -936,7 +936,7 @@ export class TilesRendererBase {
+ 
+ 		this.traverse( tile => {
+ 
+-			if ( tile.internal.loadingState === FAILED ) {
++			if ( tile.internal && tile.internal.loadingState === FAILED ) {
+ 
+ 				tile.internal.loadingState = UNLOADED;
+ 
+@@ -1299,7 +1299,7 @@ export class TilesRendererBase {
+ 
+ 			// we only remove tiles that are QUEUED to avoid cancelling tiles that may already be nearly downloaded
+ 			// as the camera moves
+-			if ( ! lruCache.isUsed( tile ) && tile.internal.loadingState === QUEUED ) {
++			if ( ! lruCache.isUsed( tile ) && tile.internal && tile.internal.loadingState === QUEUED ) {
+ 
+ 				toRemove.push( tile );
+ 
+@@ -1318,7 +1318,7 @@ export class TilesRendererBase {
+ 	// Private Functions
+ 	queueTileForDownload( tile ) {
+ 
+-		if ( tile.internal.loadingState !== UNLOADED || this.lruCache.isFull() ) {
++		if ( ! tile.internal || tile.internal.loadingState !== UNLOADED || this.lruCache.isFull() ) {
+ 
+ 			return;
+ 
+@@ -1527,7 +1527,7 @@ export class TilesRendererBase {
+ 
+ 		// If the tile is already being loaded then don't
+ 		// start it again.
+-		if ( tile.internal.loadingState !== UNLOADED ) {
++		if ( ! tile.internal || tile.internal.loadingState !== UNLOADED ) {
+ 
+ 			return;
+ 
+diff --git a/node_modules/3d-tiles-renderer/src/core/renderer/tiles/optimizedTraverseFunctions.js b/node_modules/3d-tiles-renderer/src/core/renderer/tiles/optimizedTraverseFunctions.js
+index 1725e88..7c334e6 100644
+--- a/node_modules/3d-tiles-renderer/src/core/renderer/tiles/optimizedTraverseFunctions.js
++++ b/node_modules/3d-tiles-renderer/src/core/renderer/tiles/optimizedTraverseFunctions.js
+@@ -33,7 +33,7 @@ function areChildrenProcessed( tile ) {
+ 	const { children } = tile;
+ 	const childrenReady = children.length === 0 || isProcessed( children[ children.length - 1 ] );
+ 
+-	const contentReady = ! tile.internal.hasUnrenderableContent || isDownloadFinished( tile.internal.loadingState );
++	const contentReady = ! tile.internal || ! tile.internal.hasUnrenderableContent || isDownloadFinished( tile.internal.loadingState );
+ 	return childrenReady && contentReady;
+ 
+ }
+@@ -41,7 +41,7 @@ function areChildrenProcessed( tile ) {
+ // Checks whether we can stop at this tile for rendering or not
+ function canUnconditionallyRefine( tile ) {
+ 
+-	return tile.internal.hasUnrenderableContent || ( tile.parent && tile.parent.geometricError < tile.geometricError );
++	return Boolean( tile.internal && tile.internal.hasUnrenderableContent ) || ( tile.parent && tile.parent.geometricError < tile.geometricError );
+ 
+ }
+ 

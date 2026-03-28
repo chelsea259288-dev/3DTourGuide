@@ -50,6 +50,8 @@ type Props = {
  */
 export function POINavigator({ target, minAltitude, onArrived, onFlyStart }: Props) {
   const { camera } = useThree()
+  const cameraRef = useRef(camera)
+  cameraRef.current = camera
 
   const flying = useRef(false)
   const progress = useRef(0)
@@ -77,6 +79,8 @@ export function POINavigator({ target, minAltitude, onArrived, onFlyStart }: Pro
       flying.current = false
       return
     }
+
+    const camera = cameraRef.current
 
     // Capture start state
     startQuat.current.copy(camera.quaternion)
@@ -114,7 +118,7 @@ export function POINavigator({ target, minAltitude, onArrived, onFlyStart }: Pro
     progress.current = 0
     flying.current = true
     onFlyStart()
-  }, [target, camera, onFlyStart, minAltitude])
+  }, [target, onFlyStart, minAltitude])
 
   useFrame((_, delta) => {
     if (!flying.current) return
@@ -159,7 +163,9 @@ export function POINavigator({ target, minAltitude, onArrived, onFlyStart }: Pro
       camera.position.copy(endPos.current)
       camera.up.copy(endUp.current)
       camera.quaternion.copy(endQuat.current)
-      onArrived()
+      queueMicrotask(() => {
+        onArrived()
+      })
     }
   })
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { SceneCanvas } from '../components/SceneCanvas'
+import { SceneErrorBoundary } from '../components/SceneErrorBoundary'
 import { getSceneById } from '../data/scenes'
 import { useAdaptiveDpr } from '../hooks/useAdaptiveDpr'
 import { useRecentScenes } from '../hooks/useRecentScenes'
@@ -62,12 +63,14 @@ export function SceneView() {
   return (
     <div className="page scene-shell">
       <div className="scene-canvas-wrap">
-        <SceneCanvas
-          scene={scene}
-          resetSignal={resetSignal}
-          dpr={dpr}
-          onLoadChange={onLoadChange}
-        />
+        <SceneErrorBoundary key={scene.id}>
+          <SceneCanvas
+            scene={scene}
+            resetSignal={resetSignal}
+            dpr={dpr}
+            onLoadChange={onLoadChange}
+          />
+        </SceneErrorBoundary>
         {load.active && (
           <div className="load-overlay" role="status" aria-live="polite">
             <div className="load-bar-outer">

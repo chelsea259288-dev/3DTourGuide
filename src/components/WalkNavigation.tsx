@@ -85,11 +85,12 @@ export function WalkNavigation({
   useEffect(() => {
     if (!active) return
     const dom = gl.domElement
+    if (!dom) return
 
     const onPointerDown = (e: PointerEvent) => {
       isDragging.current = true
       prevMouse.current = { x: e.clientX, y: e.clientY }
-      dom.setPointerCapture(e.pointerId)
+      try { dom.setPointerCapture(e.pointerId) } catch { /* */ }
     }
 
     const onPointerMove = (e: PointerEvent) => {
@@ -111,7 +112,7 @@ export function WalkNavigation({
 
     const onPointerUp = (e: PointerEvent) => {
       isDragging.current = false
-      dom.releasePointerCapture(e.pointerId)
+      try { if (dom.hasPointerCapture(e.pointerId)) dom.releasePointerCapture(e.pointerId) } catch { /* */ }
     }
 
     dom.addEventListener('pointerdown', onPointerDown)
@@ -120,10 +121,12 @@ export function WalkNavigation({
     dom.addEventListener('pointercancel', onPointerUp)
 
     return () => {
-      dom.removeEventListener('pointerdown', onPointerDown)
-      dom.removeEventListener('pointermove', onPointerMove)
-      dom.removeEventListener('pointerup', onPointerUp)
-      dom.removeEventListener('pointercancel', onPointerUp)
+      try {
+        dom.removeEventListener('pointerdown', onPointerDown)
+        dom.removeEventListener('pointermove', onPointerMove)
+        dom.removeEventListener('pointerup', onPointerUp)
+        dom.removeEventListener('pointercancel', onPointerUp)
+      } catch { /* Canvas already disposed */ }
     }
   }, [active, camera, gl.domElement])
 

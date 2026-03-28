@@ -111,8 +111,12 @@ export function GeoMarker({ poi, active, onClick }: Props) {
         e.stopPropagation()
         onClick(poi)
       }}
-      onPointerOver={() => { document.body.style.cursor = 'pointer' }}
-      onPointerOut={() => { document.body.style.cursor = '' }}
+      onPointerOver={() => {
+        document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.removeProperty('cursor')
+      }}
     >
       {/* Ground ring */}
       <mesh ref={ringRef} rotation-x={-Math.PI / 2} material={ringMat}>

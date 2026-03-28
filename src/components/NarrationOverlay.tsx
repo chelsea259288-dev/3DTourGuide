@@ -40,13 +40,15 @@ export function NarrationOverlay({ title, text, onDone }: Props) {
     stopTTS()
 
     // Start TTS (ElevenLabs or browser fallback)
-    speak(text, () => {
+    void speak(text, () => {
       // Auto-dismiss 2s after speech ends
       if (!doneRef.current) {
         setTimeout(() => {
           if (!doneRef.current) fadeOut()
         }, 2000)
       }
+    }).catch((err) => {
+      console.warn('Narration TTS failed:', err)
     })
 
     // Typewriter effect
